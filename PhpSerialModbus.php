@@ -12,7 +12,7 @@
  * http://www.arduinoelettronica.com/
  * https://arduinoelectronics.wordpress.com/
  *
- * This class is a simple-to-use implementation of the
+ * This class is a easy-to-use implementation of the
  * ModBus RTU serial protocol (for example via RS485 port)
  * acting as ModBus Master with the support of 
  * function codes from 1 to 6.
@@ -78,8 +78,10 @@ class PhpSerialModbus
 				else
 				$crc >>= 1;
 			}		
-		}	
-		return $crc;
+		}
+		$highCrc=floor($crc/256);
+		$lowCrc=($crc-$highCrc*256);
+		return chr($lowCrc).chr($highCrc);
 	}
 	
 	// Convert bin string to readable hex
@@ -98,35 +100,29 @@ class PhpSerialModbus
 	}
 	
 	// Send Modbus query to slave
-	public function sendQuery ($slaveId, $functionCode, $registerAddress, $regNumOrCount, $getResponse = true)
+	public function sendQuery ($slaveId, $functionCode, $registerAddress, $regCountOrData, $getResponse = true)
 	{
 		if ( ($functionCode > 6 ) || ($functionCode < 1) ) {
 			if ($this->debug) print "DEBUG [invalid function code]\n";
 			return 0;
 		} 
 		
-		if ($functionCode < 5) $regNumOrCount = dechex($regNumOrCount);
+		if ($functionCode < 5) $regCountOrData = dechex($regCountOrData);
 				
 		$regHighByte=hexdec(substr($registerAddress,0,2));
 		$regLowByte=hexdec(substr($registerAddress,2));
 		
-		$regNumOrCount = str_pad($regNumOrCount,4,"0",STR_PAD_LEFT);
+		$regCountOrData = str_pad($regCountOrData,4,"0",STR_PAD_LEFT);
 		
-		$rcdHighByte=hexdec(substr($regNumOrCount,0,2));
-		$rcdLowByte=hexdec(substr($regNumOrCount,2));
+		$rcdHighByte=hexdec(substr($regCountOrData,0,2));
+		$rcdLowByte=hexdec(substr($regCountOrData,2));
 		 
 		// Create query and convert to a binary string
 		$query=array($slaveId, hexdec($functionCode), $regHighByte, $regLowByte, $rcdHighByte, $rcdLowByte);
 		$queryString=implode(array_map("chr",$query));
 	
 		// Calculate CRC
-		$crc=$this->crc16($queryString);
-	
-		$highCrc=floor($crc/256);
-		$lowCrc=($crc-$highCrc*256);
-
-		$crcString=chr($lowCrc).chr($highCrc);
-		$queryString.=$crcString;
+		$queryString.=$this->crc16($queryString);
 	
 		if ($this->debug) print "DEBUG [query sent]: ".$this->bin2hexString($queryString)."\n";
 		
@@ -170,13 +166,10 @@ class PhpSerialModbus
 			}
 			
 			// CRC Check
-			$checkArray=(str_split($responseString,strlen($responseString)-2));
-			$crc=$this->crc16($checkArray[0]);	
-			$highCrc=floor($crc/256);
-			$lowCrc=($crc-$highCrc*256);
-			$crcString=chr($lowCrc).chr($highCrc);
-			if ($crcString!=$checkArray[1]) {
-				if ($this->debug) print "DEBUG [crc check failed]: (expected ".$this->bin2hexString($crcString)." received ".$this->bin2hexString($checkArray[1]).")\n";
+			$checkArray=(str_split($responseString,strlen($responseString)-2));	
+			$crc=$this->crc16($checkArray[0]);
+			if ($crc!=$checkArray[1]) {
+				if ($this->debug) print "DEBUG [crc check failed]: (expected ".$this->bin2hexString($crc)." received ".$this->bin2hexString($checkArray[1]).")\n";
 				return 0;
 			}
 			
