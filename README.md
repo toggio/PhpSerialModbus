@@ -1,7 +1,7 @@
 Php Serial Modbus Class
 ======
 
-This class is an implementation of the ModBus RTU serial protocol (for example via RS485 port) acting as ModBus master allowing easy-to-use ModBus communication.
+This class is an implementation of the [ModBus RTU serial protocol][modbus] (for example via RS485 port) acting as ModBus master allowing easy-to-use ModBus communication.
 
 Features
 -------
@@ -25,7 +25,7 @@ print "\nVoltage: ".(hexdec($result[0].$result[1])/100);
 $modbus->deviceClose();
 ?>
 ```
-This example will ask to slave with id "1" the contents of Input Registers 310C, 310D and 310E and will produce the following output (on a Raspberry Pi connected via USB/RS485 converter to my Epever/Epsolar Tracer 2215BN MPPT solar charger controller):
+This example will query the slave with id "1" asking the contents of Input Registers 310C, 310D and 310E and will produce the following output (on a Raspberry Pi connected via USB/RS485 converter to my Epever/Epsolar Tracer 2215BN MPPT solar charger controller):
 ```SH
 Array
 (
@@ -50,13 +50,13 @@ Class methods and properties
 **deviceOpen** ()
 >Open the serial port
 
-**sendQuery** ($slaveId, $functionCode, $registerAddress, $regNumOrCount, $getResponse = true)
+**sendQuery** ($slaveId, $functionCode, $registerAddress, $regNumOrCount, $response = true)
 >Send a query to the ModBus slave where $slaveid is the ID of the device, $functionCode is the ModBus functions code, $registerAddress is HEX address of the register we want to read/write, $regCountOrData is the count of register we want to read or the data we want to write and $getResponse (default is true) is a boolean to control if the datas have to return by the sendQuery() method or by the successive readResponse() method. The returned data is an array of HEX bytes without headers and without CRC. 
 
 **readResponse** ($raw=false,$offsetl=0,$offsetr=0)
 >Get response from serial port. Useful for some advanced use. You can send the query with the command sendQuery() and get response after a while. If $raw is set to true you will get "raw" binary response with headers and with CRC bytes, useful for advanded data manipulation. You can optionally insert a left offset ($offsetl) and a right offset ($offsetr) on the received data (only if not in "raw" mode.
 
-**sendRawQuery** ($string, $getResponse = true)
+**sendRawQuery** ($string, $response = true)
 >This method permits to send a raw query without functions or CRC control. Very useful for advanced use and for non-standard Modbus functions codes. It sends the $strings to the serial device (You can use the format \x - For example the command sendQuery(1,4,"310C",3) is equivalent to sendRawQuery("\x01\x04\x31\x0c\x00\x03\x7e\xf4")
 
 **crc16** ($data)
@@ -64,6 +64,10 @@ Class methods and properties
 
 **$debug** = false
 >Setting this property to TRUE will print HEX data sent and received through serial port. Useful for analyze raw data.
+
+Note
+------
+If you use this class in HTTPD and not CLI don't forget to give the user the permssion to use serial port (for example with Apache on Debian: usermod -a -G dialout www-data)
 
 Contributors
 --------
@@ -93,3 +97,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
    [phpserial]: <https://github.com/Xowap/PHP-Serial/>
    [vettore]: <http://blog.vettore.org/modbus-senza-paura/>
+   [modbus]: http://modbustools.com/modbus.html

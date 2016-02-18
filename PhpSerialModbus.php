@@ -22,7 +22,7 @@
  *
  */
  
-include("PhpSerial.php");
+require_once 'PhpSerial.php';
 
 class PhpSerialModbus
 {
@@ -93,14 +93,14 @@ class PhpSerialModbus
 		return $hexString;
 	}
 	
-	public function sendRawQuery ($string, $getResponse = true) {
+	public function sendRawQuery ($string, $response = true) {
 		$this->serial->sendMessage($string);
 		if ($this->debug) print "DEBUG [query sent]: ".$this->bin2hexString($string)."\n";
-		if ($getResponse) return $this->readResponse(); else return 1;		
+		if ($response) return $this->getResponse(); else return 1;		
 	}
 	
 	// Send Modbus query to slave
-	public function sendQuery ($slaveId, $functionCode, $registerAddress, $regCountOrData, $getResponse = true)
+	public function sendQuery ($slaveId, $functionCode, $registerAddress, $regCountOrData, $response = true)
 	{
 		if ( ($functionCode > 6 ) || ($functionCode < 1) ) {
 			if ($this->debug) print "DEBUG [invalid function code]\n";
@@ -129,11 +129,11 @@ class PhpSerialModbus
 		// Send over serial port
 		$this->serial->sendMessage($queryString);
 		
-		if ($getResponse) return $this->readResponse(); else return 1;
+		if ($response) return $this->getResponse(); else return 1;
 	}
 	
 	// Read response from slave
-	public function readResponse ($raw=false,$offsetl=0,$offsetr=0)
+	public function getResponse ($raw=false,$offsetl=0,$offsetr=0)
 	{
 		// Time started (for timing)
 		$startTime = microtime(true);
