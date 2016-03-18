@@ -1,4 +1,4 @@
-Php Serial Modbus Class
+Php Serial Modbus
 ======
 
 This class is an implementation of the [ModBus RTU serial protocol][modbus] (for example via RS485 port) acting as ModBus master allowing easy-to-use ModBus communication.
