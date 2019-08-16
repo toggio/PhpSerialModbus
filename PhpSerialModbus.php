@@ -21,6 +21,16 @@
  * for more Modbus protocol infos)
  *
  */
+
+/** Class was modified and upgaded 
+* 13. August 2019.
+* @author  Nikola Bencic
+* Added:
+*  - write verification for single holding reg write
+*  - conversion from unsigned to signed 16bit int in order to use negative values ( like negative temperature )
+* Changes:
+* - set 2 stop bits by default to match Modbus standard ( devices work with one stop bit as well, but 2 are by Modbus standard specification )
+**/
  
 require_once 'PhpSerial.php';
 
@@ -93,6 +103,39 @@ class PhpSerialModbus
 		return $hexString;
 	}
 	
+
+	private function Hex2String($hex){
+	    $string='';
+	    for ($i=0; $i < strlen($hex)-1; $i+=2){
+	        $string .= chr(hexdec($hex[$i].$hex[$i+1]));
+	    }
+	    return $string;
+	}
+
+	//convert from uint16_t to int16_t or any other format
+	public function convertResponse($input, $format = 'uint16_t'){
+
+		$output = [];
+
+		for($i = 0; $i < count($input); $i+=2)
+		{
+
+			$output[$i] = hexdec($input[$i].$input[($i+1)]);
+
+			//conv. for 16-bit signed integer
+				if($format == 'int16_t'){
+					if($output[$i] > 32767) $output[$i] -= 65536;
+				}
+				else if($format == 'str')
+				{
+					$output[$i] = $this->Hex2String($input[$i].$input[($i+1)]);
+				}
+		}
+
+		return array_values($output);
+	}
+
+	//send raw query
 	public function sendRawQuery ($string, $response = true) {
 		$this->serial->sendMessage($string);
 		if ($this->debug) print "DEBUG [query sent]: ".$this->bin2hexString($string)."\n";
@@ -100,7 +143,7 @@ class PhpSerialModbus
 	}
 	
 	// Send Modbus query to slave
-	public function sendQuery ($slaveId, $functionCode, $registerAddress, $regCountOrData, $response = true)
+	public function sendQuery ($slaveId, $functionCode, $registerAddress, $regCountOrData, $response = true, $validateWrite = false)
 	{
 		if ( ($functionCode > 6 ) || ($functionCode < 1) ) {
 			if ($this->debug) print "DEBUG [invalid function code]\n";
@@ -128,12 +171,15 @@ class PhpSerialModbus
 		
 		// Send over serial port
 		$this->serial->sendMessage($queryString);
+
+		// Modbus slave returns command on successful write
+		if ($validateWrite) return $this->getResponse(false, 0, 0, $this->bin2hexString($queryString));
 		
 		if ($response) return $this->getResponse(); else return 1;
 	}
 	
 	// Read response from slave
-	public function getResponse ($raw=false,$offsetl=0,$offsetr=0)
+	public function getResponse ($raw=false,$offsetl=0,$offsetr=0, $sentQuery=null)
 	{
 		// Time started (for timing)
 		$startTime = microtime(true);
@@ -151,6 +197,22 @@ class PhpSerialModbus
 		}
 		
 		if ($this->debug) print "DEBUG [response received]: ".$this->bin2hexString($responseString)."\n";
+
+		//validate write command by comparing response from modbus slave, if response is equal to sent query from master -> write was successful
+		if ($this->debug && $sentQuery !== null) print "DEBUG [write verification will be done against sent query]: ".$sentQuery."\n";
+		if ($sentQuery !== null)
+		{
+			if ($sentQuery == $this->bin2hexString($responseString))
+			{
+				if ($this->debug) print "DEBUG [ sent - received -> MATCH!] \n";
+				return true; 
+			}
+			else
+			{
+				if ($this->debug) print "DEBUG [ sent - received -> NO MATCH!] \n";
+				return false;
+			}
+		}
 		
 		if ($raw) return $responseString;
 		
