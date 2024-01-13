@@ -23,7 +23,7 @@ DEBUG [response received]: \x01\x04\x06\x04\xb7\x00\x49\x03\x71\x84\x0f
 require 'PhpSerialModbus.php';
 
 // Crate an instance of the class
-$modbus = new PhpSerialModbus;
+$modbus = new PhpSerialModbus();
 
 // Initialize port
 $modbus->deviceInit('/dev/ttyUSB0',115200,'none',8,1,'none');
@@ -31,7 +31,7 @@ $modbus->deviceInit('/dev/ttyUSB0',115200,'none',8,1,'none');
 // Open port
 $modbus->deviceOpen();
 
-// Enalbe debug
+// Enable debug
 $modbus->debug = true;
 
 // Send query to slave 1 with function code 4, asking for 3 registers from 310C

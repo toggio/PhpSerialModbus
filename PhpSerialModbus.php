@@ -32,7 +32,7 @@ class PhpSerialModbus
   
 	public function __construct() 
 	{
-		$this->serial = new PhpSerial;
+		$this->serial = new PhpSerial();
 	}
  
 	// Initialize serial port with specified parameters
