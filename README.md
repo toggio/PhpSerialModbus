@@ -16,7 +16,7 @@ Quick start example
 ```php
 <?php
 include("PhpSerialModbus.php");
-$modbus = new PhpSerialModbus;
+$modbus = new PhpSerialModbus();
 $modbus->deviceInit('/dev/ttyUSB0',115200,'none',8,1,'none');
 $modbus->deviceOpen();
 $result=$modbus->sendQuery(1,4,"310C",3);
@@ -45,7 +45,7 @@ The output is an array containing the bytes received by the slave in HEX format.
 Class methods and properties
 -------
 **deviceInit** ($port='/dev/ttyUSB0', $baud=115200, $parity='none', $char=8, $sbits=1, $flow='none')
->Initialize the serial port with the given paramters
+>Initialize the serial port with the given parameters
 
 **deviceOpen** ()
 >Open the serial port
@@ -54,7 +54,7 @@ Class methods and properties
 >Send a query to the ModBus slave where $slaveid is the ID of the device, $functionCode is the ModBus functions code, $registerAddress is HEX address of the register we want to read/write, $regCountOrData is the count of register we want to read or the data we want to write and $getResponse (default is true) is a boolean to control if the datas have to return by the sendQuery() method or by the successive readResponse() method. The returned data is an array of HEX bytes without headers and without CRC. 
 
 **readResponse** ($raw=false,$offsetl=0,$offsetr=0)
->Get response from serial port. Useful for some advanced use. You can send the query with the command sendQuery() and get response after a while. If $raw is set to true you will get "raw" binary response with headers and with CRC bytes, useful for advanded data manipulation. You can optionally insert a left offset ($offsetl) and a right offset ($offsetr) on the received data (only if not in "raw" mode.
+>Get response from serial port. Useful for some advanced use. You can send the query with the command sendQuery() and get response after a while. If $raw is set to true you will get "raw" binary response with headers and with CRC bytes, useful for advanced data manipulation. You can optionally insert a left offset ($offsetl) and a right offset ($offsetr) on the received data (only if not in "raw" mode.
 
 **sendRawQuery** ($string, $response = true)
 >This method permits to send a raw query without functions or CRC control. Very useful for advanced use and for non-standard Modbus functions codes. It sends the $strings to the serial device (You can use the format \x - For example the command sendQuery(1,4,"310C",3) is equivalent to sendRawQuery("\x01\x04\x31\x0c\x00\x03\x7e\xf4")
@@ -67,7 +67,7 @@ Class methods and properties
 
 Note
 ------
-If you use this class in HTTPD and not CLI don't forget to give the user the permssion to use serial port (for example with Apache on Debian: usermod -a -G dialout www-data)
+If you use this class in HTTPD and not CLI don't forget to give the user the permission to use serial port (for example with Apache on Debian: usermod -a -G dialout www-data)
 
 Contributors
 --------

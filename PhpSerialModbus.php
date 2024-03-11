@@ -28,10 +28,11 @@ class PhpSerialModbus
 {
 	// Enable for debugging
 	public $debug = false;
+	private $serial;
   
 	public function __construct() 
 	{
-		$this->serial = new PhpSerial;
+		$this->serial = new PhpSerial();
 	}
  
 	// Initialize serial port with specified parameters
