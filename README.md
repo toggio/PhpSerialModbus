@@ -75,6 +75,12 @@ This project is developed by Luca Soltoggio and is based on the class [PhpSerial
 
 http://arduinoelectronics.wordpress.com/ ~ http://minibianpi.wordpress.com
 
+## Help us
+
+If you find this project useful and would like to support its development, consider making a donation. Any contribution is greatly appreciated!
+
+**Bitcoin (BTC) Address:** `3Ctmurhy18PmkTKPa2s7PjfAKzR8ZBj8Na`
+
 License
 ------
 Copyright (C) 2016 Luca Soltoggio
