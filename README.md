@@ -79,7 +79,9 @@ http://arduinoelectronics.wordpress.com/ ~ http://minibianpi.wordpress.com
 
 If you find this project useful and would like to support its development, consider making a donation. Any contribution is greatly appreciated!
 
-**Bitcoin (BTC) Address:** `3Ctmurhy18PmkTKPa2s7PjfAKzR8ZBj8Na`
+**Bitcoin (BTC) Addresses:**
+- **1LToggio**f3rNUTCemJZSsxd1qubTYoSde6  
+- **3LToggio**7Xx8qMsjCFfiarV4U2ZR9iU9ob 
 
 License
 ------
